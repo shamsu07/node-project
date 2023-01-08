@@ -1,86 +1,28 @@
-//importing files
-const routes = require("./routes/routes");
-
-//importing the dependecies
 const express = require("express");
-const bodyParser = require("body-parser");
+const app = express();
+
+require("dotenv/config");
+
 const cors = require("cors");
-const helmet = require("helmet");
-const morgan = require("morgan");
-const { expressjwt: expjwt } = require("express-jwt");
-const jwks = require("jwks-rsa");
-const session = require("express-session");
-const passport = require("passport");
 const jwt = require("jsonwebtoken");
 const { OAuth2Client } = require("google-auth-library");
-
-// configure reading from .env
-require("dotenv/config");
 
 // var webAuth = new auth0.WebAuth({
 //   domain: "shamsu07.us.auth0.com",
 //   clientID: "7cWs60QTUMzUUPxpn78tvvT1EGHa0PlZ",
 // });
 
-const { startDatabase } = require("./database/mongo");
-
-// defining the Express app
-const app = express();
-app.set("view engine", "ejs");
-
 app.use(
-  session({
-    resave: false,
-    saveUninitialized: true,
-    secret: "SECRET",
+  cors({
+    origin: ["https://drx6qo-3001.preview.csb.app"],
+    methods: "GET,POST,PUT,DELETE,OPTIONS",
   })
 );
 
+app.use(express.json());
+
 //defining an array to work as database
-const ads = [{ title: "Hello World" }];
 let DB = [];
-
-//adding Helmet to enhance API security
-app.use(helmet());
-
-//using bodyParser to parse JSON bodies into JS objects
-app.use(bodyParser.json());
-bodyParser.json();
-
-//enabling CORS for all requests
-app.use(cors());
-
-//adding morgan to log HTTP requests
-app.use(morgan("combined"));
-
-//starting the server
-const port = process.env.PORT || 8080;
-app.listen(3001, () => {
-  console.log(`server started at ${3001}`);
-});
-
-app.get("/", (req, res) => {
-  res.send("Hello world");
-});
-
-const jwtCheck = expjwt({
-  secret: jwks.expressJwtSecret({
-    cache: true,
-    rateLimit: true,
-    jwksRequestsPerMinute: 5,
-    jwksUri: "https://shamsu07.us.auth0.com/.well-known/jwks.json",
-  }),
-  audience: "https://autocode-api",
-  issuer: "https://shamsu07.us.auth0.com/",
-  algorithms: ["RS256"],
-});
-
-app.use(jwtCheck);
-
-//defining an endpoint to return all data
-app.get("/get-code", (req, res) => {
-  res.send(ads);
-});
 
 /* GOOGLE AUTH */
 
@@ -116,7 +58,7 @@ app.post("/signup", async (req, res) => {
       DB.push(profile);
 
       res.status(201).json({
-        message: "signup was successful",
+        message: "Signup was successful",
         user: {
           firstName: profile?.given_name,
           lastName: profile?.family_name,
@@ -174,3 +116,33 @@ app.post("/login", async (req, res) => {
     });
   }
 });
+
+//starting the server
+const port = process.env.PORT || 8080;
+app.listen(5152, () => {
+  console.log(`server started at ${5152}`);
+});
+
+
+app.get("/", (req, res) => {
+  res.send("Hello world");
+});
+
+// const jwtCheck = expjwt({
+//   secret: jwks.expressJwtSecret({
+//     cache: true,
+//     rateLimit: true,
+//     jwksRequestsPerMinute: 5,
+//     jwksUri: "https://shamsu07.us.auth0.com/.well-known/jwks.json",
+//   }),
+//   audience: "https://autocode-api",
+//   issuer: "https://shamsu07.us.auth0.com/",
+//   algorithms: ["RS256"],
+// });
+
+// app.use(jwtCheck);
+
+// //defining an endpoint to return all data
+// app.get("/get-code", (req, res) => {
+//   res.send(ads);
+// });
